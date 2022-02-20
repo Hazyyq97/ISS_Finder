@@ -30,4 +30,13 @@ app.post("/location", async(req, res)=>{
     })
   })
 
+  app.get("/people_location", async (req, res) => {
+    axios
+      .get("http://api.open-notify.org/astros.json")
+      .then((response) => {
+        // console.log(response.data);
+        res.send(response.data);
+      })
+  });
+
   app.listen(5000,()=>console.log('server started'))
