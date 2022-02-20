@@ -1,5 +1,5 @@
 import axios from "axios";
-import {DatePicker, Form, Button, Table, Row, Col} from 'antd'
+import {DatePicker, Form, Button, Table, Row, Col, Space} from 'antd'
 import GoogleMapReact from 'google-map-react';
 import { useState } from "react";
 import Marker from "./Marker";
@@ -7,15 +7,19 @@ import moment from 'moment'
 export default function Home() {
   const [result, setResult] = useState([]);
   const [otherPeopleResult, setOtherPeopleResult] = useState([]);
+  const [locResult, setLocResult] = useState([]);
   const [showTable, setShowTable] = useState(false);
+  const [showLoc, setShowLoc] = useState(false);
   const [form] = Form.useForm();
   const [isTrackLoading, setIsTrackLoading] = useState(false);
   const [isPeopleLoading, setIsPeopleLoading] = useState(false);
+  const [isLocLoading, setIsLocLoading] = useState(false);
 
   const columns = [
     {
       title: 'No', 
       dataIndex: 'key',
+      key: 'key',
       render: (text,record)=>
       <label>{otherPeopleResult.indexOf(record) + 1}</label>
     },
@@ -28,6 +32,20 @@ export default function Home() {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+    }
+  ]
+
+  const columnsLoc = [
+
+    {
+      title: "Country Code",
+      dataIndex: 'country_code',
+      key: 'country_code',
+    },
+    {
+      title: "Timezone", 
+      dataIndex: 'timezone_id',
+      key: 'timezone_id'
     }
   ]
 
@@ -49,33 +67,52 @@ export default function Home() {
     })
   }
 
-  const onFinish = async(val)=>{
+  const onFinish = (val)=>{
     setShowTable(true);
+    setIsLocLoading(true);
     setIsTrackLoading(true);
     getPeople();
     var value = moment(val.date).unix();
 
-    await axios.post("http://localhost:5000/location", {"timeStamp":value})
+     axios.post("http://localhost:5000/location", {"timeStamp":value})
     .then((resp) => {
       
-      setIsTrackLoading(false);
+     
       // console.log(resp.data);
       setResult(resp.data);
+      var otherLoc=[];
 
-      for(var v in resp.data){
-        var lat = resp.data[v].latitude;
-        var long = resp.data[v].longitude;
-        getLocation(lat, long)
-      }
+      resp.data.map((val)=>{
+       axios.post("http://localhost:5000/country", {"lat": val.latitude, "lng": val.longitude})
+        .then((response)=> {
+          
+          console.log(response.data)
+          otherLoc.push(response.data)
+        })
+      })
+      setIsTrackLoading(false);
+      setIsLocLoading(false);
+      setLocResult(otherLoc);
+      console.log("Other location",locResult)
+   
     });
   }
-  
-  const getLocation=async(lat, lng, data)=>{
-    await axios.post("http://localhost:5000/country",{"lat": lat, "lng": lng})
-    .then((resp)=>{
-      console.log("Country Code",resp.data);
-    })
+
+  const GetLocationSubmit=()=>{
+    setShowLoc(true);
+    console.log(locResult)
   }
+
+
+  
+  
+  // const getLocation=async(lat, lng)=>{
+  //   await axios.post("http://localhost:5000/country",{"lat": lat, "lng": lng})
+  //   .then((resp)=>{
+  //     console.log("Country Code",resp.data);
+  //     // setLocResult(resp.data)
+  //   })
+  // }
    
   return (
     <>
@@ -97,8 +134,8 @@ export default function Home() {
                 key={key}
                 lat={val.latitude}
                 lng={val.longitude}
-                date ={new Date(val.timestamp*1000).toLocaleDateString()}
-                time ={new Date(val.timestamp*1000).toLocaleTimeString()}
+                date={new Date(val.timestamp * 1000).toLocaleDateString()}
+                time={new Date(val.timestamp * 1000).toLocaleTimeString()}
                 name="My Marker"
                 color="red"
               />
@@ -118,15 +155,34 @@ export default function Home() {
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button loading={isTrackLoading} type="primary" htmlType="submit">
-            Submit
-          </Button>
+          <Space>
+            <Button loading={isTrackLoading} type="primary" htmlType="submit">
+              Submit
+            </Button>
+            <Button onClick={GetLocationSubmit}>Location</Button>
+          </Space>
         </Form.Item>
       </Form>
       <Row>
-        <Col span={9} offset={8}>
+        <Col style={{ paddingRight: "10px" }} span={4} offset={6}>
+          {console.log("loc result here =>", locResult)}
+          {showLoc && (
+            <Table
+              bordered
+              loading={isLocLoading}
+              dataSource={locResult}
+              columns={columnsLoc}
+            />
+          )}
+        </Col>
+        <Col span={9}>
           {showTable && (
-            <Table bordered loading={isPeopleLoading} dataSource={otherPeopleResult} columns={columns} />
+            <Table
+              bordered
+              loading={isPeopleLoading}
+              dataSource={otherPeopleResult}
+              columns={columns}
+            />
           )}
         </Col>
       </Row>

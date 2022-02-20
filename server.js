@@ -12,7 +12,7 @@ app.post("/location", async(req, res)=>{
     let tempPrevious = timeStamp;
     let tempAfter = timeStamp;
 
-    console.log(timeStamp);
+    // console.log(timeStamp);
     var previousHourTS=[];
     var nextHourTS = [];
 
@@ -42,7 +42,7 @@ app.post("/location", async(req, res)=>{
 
   app.post("/country", async(req, res)=>{
     let{lat, lng} = req.body;
-    axios.get("https://api.wheretheiss.at/v1/coordinates/" + lat+"," + lng)
+    await axios.get("https://api.wheretheiss.at/v1/coordinates/" + lat+"," + lng)
     // axios.get("https://api.wheretheiss.at/v1/coordinates/37.795517,-122.393693")
 
     .then((resp)=>{
