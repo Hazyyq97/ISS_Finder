@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const axios = require("axios");
-const { lazyrouter } = require("express/lib/application");
+
 
 app.use(express.json());
 app.use(cors());
@@ -17,11 +17,12 @@ app.post("/location", async(req, res)=>{
     var nextHourTS = [];
 
     for (let i = 0; i < 6; i++) {
-      tempPrevious = tempPrevious - 600; //10 mins * 60 secs
+      tempPrevious = tempPrevious - 600; 
       tempAfter = tempAfter + 600;
       previousHourTS[i] = tempPrevious;
       nextHourTS[i] = tempAfter;
     }
+
 
      axios.get("https://api.wheretheiss.at/v1/satellites/25544/positions?timestamps="+previousHourTS+","+timeStamp+","+nextHourTS
 

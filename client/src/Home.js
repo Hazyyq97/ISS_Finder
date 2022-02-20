@@ -99,7 +99,7 @@ export default function Home() {
       setIsTrackLoading(false);
       setIsLocLoading(false);
       setLocResult(otherLoc);
-   
+      setShowLoc(false);
     });
   }
 
