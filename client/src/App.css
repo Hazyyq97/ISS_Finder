@@ -14,3 +14,12 @@
 .marker:hover {
   z-index: 1;
 }
+
+.ant-table-cell{
+  background-color: #FFF0F5;
+}
+
+.ant-table-thead>tr>th{
+  background-color: #FFB6C1;
+ 
+}

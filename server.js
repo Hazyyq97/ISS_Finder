@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const axios = require("axios");
+const { lazyrouter } = require("express/lib/application");
 
 app.use(express.json());
 app.use(cors());
@@ -38,5 +39,16 @@ app.post("/location", async(req, res)=>{
         res.send(response.data);
       })
   });
+
+  app.post("/country", async(req, res)=>{
+    let{lat, lng} = req.body;
+    axios.get("https://api.wheretheiss.at/v1/coordinates/" + lat+"," + lng)
+    // axios.get("https://api.wheretheiss.at/v1/coordinates/37.795517,-122.393693")
+
+    .then((resp)=>{
+      // console.log(resp.data)
+      res.send(resp.data);
+    })
+  })
 
   app.listen(5000,()=>console.log('server started'))

@@ -35,15 +35,15 @@ export default function Home() {
     setIsPeopleLoading(true);
     await axios("http://localhost:5000/people_location")
     .then((resp)=>{
-      console.log("Other people",resp.data.people);
+      // console.log("Other people",resp.data.people);
       var result = [];
         for (var i = 0; i < resp.data.people.length; i++) {
           resp.data.people[i].key = i;
         }
-        for (var i in resp.data.people) {
-          result.push(resp.data.people[i]);
+        for (var a in resp.data.people) {
+          result.push(resp.data.people[a]);
         }
-        console.log(result)
+        // console.log(result)
       setOtherPeopleResult(result);
       setIsPeopleLoading(false)
     })
@@ -52,19 +52,30 @@ export default function Home() {
   const onFinish = async(val)=>{
     setShowTable(true);
     setIsTrackLoading(true);
+    getPeople();
     var value = moment(val.date).unix();
-    console.log(value);
 
     await axios.post("http://localhost:5000/location", {"timeStamp":value})
     .then((resp) => {
       
       setIsTrackLoading(false);
-      console.log(resp.data);
+      // console.log(resp.data);
       setResult(resp.data);
-      getPeople();
+
+      for(var v in resp.data){
+        var lat = resp.data[v].latitude;
+        var long = resp.data[v].longitude;
+        getLocation(lat, long)
+      }
     });
   }
   
+  const getLocation=async(lat, lng, data)=>{
+    await axios.post("http://localhost:5000/country",{"lat": lat, "lng": lng})
+    .then((resp)=>{
+      console.log("Country Code",resp.data);
+    })
+  }
    
   return (
     <>
@@ -80,11 +91,14 @@ export default function Home() {
           defaultCenter={{ lat: 10.99835602, lng: 77.01502627 }}
         >
           {result.map((val, key) => {
+            // console.log(new Date(val.timestamp*1000).toLocaleDateString() , new Date(val.timestamp*1000).toLocaleTimeString())
             return (
               <Marker
                 key={key}
                 lat={val.latitude}
                 lng={val.longitude}
+                date ={new Date(val.timestamp*1000).toLocaleDateString()}
+                time ={new Date(val.timestamp*1000).toLocaleTimeString()}
                 name="My Marker"
                 color="red"
               />
@@ -112,7 +126,7 @@ export default function Home() {
       <Row>
         <Col span={9} offset={8}>
           {showTable && (
-            <Table loading={isPeopleLoading} dataSource={otherPeopleResult} columns={columns} />
+            <Table bordered loading={isPeopleLoading} dataSource={otherPeopleResult} columns={columns} />
           )}
         </Col>
       </Row>
