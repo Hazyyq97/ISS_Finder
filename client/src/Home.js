@@ -7,21 +7,16 @@ import moment from 'moment'
 export default function Home() {
   const [result, setResult] = useState([]);
   const [form] = Form.useForm();
+  const [isTrackLoading, setIsTrackLoading] = useState(false);
 
-  useEffect(()=>{
-    CallApi();
-  },[])
-
-  const CallApi =async()=>{
-    axios.get("http://localhost:5000/location").then((resp) => {
-    console.log(resp.data);
-    setResult(resp.data);
-  });
-  }
-  const onFinish=async(val)=>{
+  const onFinish = async(val)=>{
+    setIsTrackLoading(true);
     var value = moment(val.date).unix();
-    await axios.get("http://localhost:5000/location", {value,})
+    console.log(value);
+
+    await axios.post("http://localhost:5000/location", {"timeStamp":value})
     .then((resp) => {
+      setIsTrackLoading(false);
       console.log(resp.data);
       setResult(resp.data);
     });
@@ -59,13 +54,14 @@ export default function Home() {
         form={form}
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
+        initialValues={{date: moment()}}
       >
-        <Form.Item label="Date" name="date">
-          <DatePicker onChange={(val,textVal)=>{console.log(textVal)}} showTime />
+        <Form.Item label="Date" name="date" >
+          <DatePicker  showTime />
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type="primary" htmlType="submit">
+          <Button loading={isTrackLoading} type="primary" htmlType="submit">
             Submit
           </Button>
         </Form.Item>

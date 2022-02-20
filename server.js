@@ -6,9 +6,24 @@ const axios = require("axios");
 app.use(express.json());
 app.use(cors());
 
-app.get("/location", (req, res)=>{
+app.post("/location", async(req, res)=>{
     let {timeStamp} = req.body;
-    axios.get("https://api.wheretheiss.at/v1/satellites/25544/positions?timestamps=436029892,1436029902&units=miles"
+    let tempPrevious = timeStamp;
+    let tempAfter = timeStamp;
+
+    console.log(timeStamp);
+    var previousHourTS=[];
+    var nextHourTS = [];
+
+    for (let i = 0; i < 6; i++) {
+      tempPrevious = tempPrevious - 600; //10 mins * 60 secs
+      tempAfter = tempAfter + 600;
+      previousHourTS[i] = tempPrevious;
+      nextHourTS[i] = tempAfter;
+    }
+
+     axios.get("https://api.wheretheiss.at/v1/satellites/25544/positions?timestamps="+previousHourTS+","+timeStamp+","+nextHourTS
+
     )
     .then((resp)=>{
       res.send(resp.data);
