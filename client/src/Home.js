@@ -36,7 +36,16 @@ export default function Home() {
   ]
 
   const columnsLoc = [
-
+    {
+      title: "Latitude",
+      dataIndex: "latitude",
+      key: "latitude",
+    },
+    {
+      title: "Longitude",
+      dataIndex: "longitude",
+      key: "longitude",
+    },
     {
       title: "Country Code",
       dataIndex: 'country_code',
@@ -78,22 +87,18 @@ export default function Home() {
     .then((resp) => {
       
      
-      // console.log(resp.data);
       setResult(resp.data);
       var otherLoc=[];
 
       resp.data.map((val)=>{
        axios.post("http://localhost:5000/country", {"lat": val.latitude, "lng": val.longitude})
         .then((response)=> {
-          
-          console.log(response.data)
           otherLoc.push(response.data)
         })
       })
       setIsTrackLoading(false);
       setIsLocLoading(false);
       setLocResult(otherLoc);
-      console.log("Other location",locResult)
    
     });
   }
@@ -102,17 +107,6 @@ export default function Home() {
     setShowLoc(true);
     console.log(locResult)
   }
-
-
-  
-  
-  // const getLocation=async(lat, lng)=>{
-  //   await axios.post("http://localhost:5000/country",{"lat": lat, "lng": lng})
-  //   .then((resp)=>{
-  //     console.log("Country Code",resp.data);
-  //     // setLocResult(resp.data)
-  //   })
-  // }
    
   return (
     <>
@@ -128,7 +122,6 @@ export default function Home() {
           defaultCenter={{ lat: 10.99835602, lng: 77.01502627 }}
         >
           {result.map((val, key) => {
-            // console.log(new Date(val.timestamp*1000).toLocaleDateString() , new Date(val.timestamp*1000).toLocaleTimeString())
             return (
               <Marker
                 key={key}
@@ -164,8 +157,7 @@ export default function Home() {
         </Form.Item>
       </Form>
       <Row>
-        <Col style={{ paddingRight: "10px" }} span={4} offset={6}>
-          {console.log("loc result here =>", locResult)}
+        <Col style={{ paddingRight: "10px" }} span={10} offset={3}>
           {showLoc && (
             <Table
               bordered
